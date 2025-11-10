@@ -6,3 +6,4 @@ pathlib
 streamlit
 generativeai
 reportlab
+exceptions 
