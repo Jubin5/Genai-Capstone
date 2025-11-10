@@ -157,4 +157,4 @@ if uploaded_file:
     with open("Final_Summary_Report.pdf", "rb") as f:
         st.download_button("Download PDF", f, file_name="Final_Summary_Report.pdf")
     with open("Final_Summary_Report.docx", "rb") as f:
-        st.download_button("Download DOCX", f, file_name="Final_Summary_Report.docx")                    "Change thid code for ollama phi model" 
+        st.download_button("Download DOCX", f, file_name="Final_Summary_Report.docx")                    
