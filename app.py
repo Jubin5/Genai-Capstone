@@ -64,7 +64,7 @@ def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
 
     # Call Ollama API (works locally at http://localhost:11434)
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        "http://localhost:8080/api/generate",
         json={"model": model_name, "prompt": prompt},
         stream=False,
     )
@@ -161,3 +161,4 @@ if uploaded_file:
         st.download_button("📘 Download PDF", f, file_name="Final_Summary_Report.pdf")
     with open("Final_Summary_Report.docx", "rb") as f:
         st.download_button("📗 Download DOCX", f, file_name="Final_Summary_Report.docx")
+
