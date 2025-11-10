@@ -1,7 +1,7 @@
 # app.py
 """
-AI-Powered Contract & Policy Simplifier
-Using Google Gemini API instead of Ollama
+AI-Powered Contract & Policy Simplifier (Gemini Edition)
+With enhanced Streamlit UI using HTML & CSS
 """
 
 import os
@@ -15,12 +15,94 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
-
 # --------- CONFIGURE GEMINI ---------
-# Make sure you set the API key in Streamlit Secrets or Environment
-# Example: os.environ["GOOGLE_API_KEY"] = "your-api-key-here"
-genai.configure(api_key=os.getenv("AIzaSyChl4DyxU3-jj_Iz2Cc_VEZJrTTdrXCAD8", st.secrets.get("AIzaSyChl4DyxU3-jj_Iz2Cc_VEZJrTTdrXCAD8", "")))
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY", st.secrets.get("GOOGLE_API_KEY", "")))
 
+# --------- PAGE CONFIG ---------
+st.set_page_config(
+    page_title="AI Contract & Policy Simplifier",
+    layout="wide",
+    page_icon="📜",
+)
+
+# --------- CUSTOM CSS ---------
+st.markdown("""
+<style>
+/* Background & Fonts */
+body, .stApp {
+    background-color: #f4f7fb;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Title Box */
+.title-box {
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    color: white;
+    text-align: center;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Upload Section */
+.upload-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+}
+
+/* Summary Box */
+textarea {
+    font-size: 15px !important;
+    font-family: 'Courier New', monospace;
+}
+
+/* Buttons */
+.stDownloadButton button {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+.stDownloadButton button:hover {
+    background: linear-gradient(90deg, #1e3a8a, #1e40af);
+}
+
+/* Progress Bar */
+div[data-testid="stProgress"] > div > div > div {
+    background-color: #2563eb !important;
+}
+
+/* Search box */
+input[type="text"] {
+    border-radius: 8px;
+    border: 1px solid #2563eb;
+}
+
+/* Headings */
+h2, h3 {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------- TITLE SECTION ---------
+st.markdown("""
+<div class="title-box">
+    <h1>📜 AI-Powered Contract & Policy Simplifier</h1>
+    <h4>Using Google Gemini for fast and reliable document simplification</h4>
+    <p><i>Upload your contract or policy — Get an easy-to-read summary instantly.</i></p>
+</div>
+""", unsafe_allow_html=True)
+
+# --------- FILE UPLOAD SECTION ---------
+st.markdown('<div class="upload-section">', unsafe_allow_html=True)
+uploaded_file = st.file_uploader("📂 Upload PDF or DOCX", type=["pdf", "docx"])
+st.markdown('</div>', unsafe_allow_html=True)
 
 # --------- PDF Extraction ---------
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -30,20 +112,17 @@ def extract_text_from_pdf(pdf_path: str) -> str:
             text += page.get_text("text") + "\n"
     return text.strip()
 
-
 # --------- DOCX Extraction ---------
 def extract_text_from_docx(docx_path: str) -> str:
     doc = Document(docx_path)
     text = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
     return text.strip()
 
-
 # --------- Cleaning ---------
 def clean_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"[^\x00-\x7F]+", " ", text)
     return text.strip()
-
 
 # --------- Chunking ---------
 def split_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list:
@@ -56,7 +135,6 @@ def split_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list:
         start += chunk_size - overlap
     return chunks
 
-
 # --------- Simplification with Gemini ---------
 def process_chunk_with_gemini(chunk: str, model_name: str = "gemini-1.5-flash") -> str:
     prompt = f"""
@@ -67,11 +145,9 @@ def process_chunk_with_gemini(chunk: str, model_name: str = "gemini-1.5-flash") 
     Text:
     {chunk}
     """
-
     model = genai.GenerativeModel(model_name)
     response = model.generate_content(prompt)
     return response.text.strip()
-
 
 # --------- Export Functions ---------
 def export_to_pdf(input_text: str, output_path: str):
@@ -87,7 +163,6 @@ def export_to_pdf(input_text: str, output_path: str):
     doc = SimpleDocTemplate(output_path, pagesize=A4)
     doc.build(story)
 
-
 def export_to_docx(input_text: str, output_path: str):
     doc = Document()
     for line in input_text.split("\n"):
@@ -97,14 +172,7 @@ def export_to_docx(input_text: str, output_path: str):
             doc.add_paragraph(line)
     doc.save(output_path)
 
-
-# --------- Streamlit App ---------
-st.set_page_config(page_title="AI Contract & Policy Simplifier", layout="wide")
-st.title("📜 AI-Powered Contract & Policy Simplifier (Gemini Edition)")
-st.markdown("Upload a legal document (.pdf or .docx) to generate an easy-to-read summary. *(Not legal advice)*")
-
-uploaded_file = st.file_uploader("📂 Upload PDF or DOCX", type=["pdf", "docx"])
-
+# --------- MAIN APP LOGIC ---------
 if uploaded_file:
     input_path = Path(uploaded_file.name)
     with open(input_path, "wb") as f:
@@ -120,8 +188,7 @@ if uploaded_file:
 
     st.success(f"✅ Extracted {len(chunks)} chunks from {input_path.name}")
 
-    # Process with Gemini
-    st.subheader("Processing with Gemini Model...")
+    st.subheader("⚙️ Processing with Gemini Model...")
     summaries = []
     progress = st.progress(0)
     for i, chunk in enumerate(chunks, start=1):
@@ -131,30 +198,31 @@ if uploaded_file:
 
     final_summary = "\n\n".join(summaries)
 
-    # Display in UI
+    # Display Results
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📄 Original Document Preview")
-        st.text_area("Original", raw_text[:2000], height=400)
+        st.text_area("Original Text", raw_text[:2000], height=400)
 
     with col2:
         st.subheader("✨ Simplified Summary")
-        st.text_area("Summary", final_summary[:5000], height=400)
+        st.text_area("Simplified Output", final_summary[:5000], height=400)
 
-        query = st.text_input("🔍 Search in summary (e.g., 'penalty')")
+        query = st.text_input("🔍 Search Summary (e.g., 'penalty')")
         if query:
             matches = [line for line in final_summary.split("\n") if query.lower() in line.lower()]
             st.write(f"Found {len(matches)} matches:")
             st.text("\n".join(matches[:20]))
 
-    # Export Files
+    # Exports
     Path("Final_Summary_Report.txt").write_text(final_summary, encoding="utf-8")
     export_to_pdf(final_summary, "Final_Summary_Report.pdf")
     export_to_docx(final_summary, "Final_Summary_Report.docx")
 
+    st.markdown("---")
     st.subheader("⬇️ Export Options")
-    st.download_button("Download TXT", final_summary, file_name="Final_Summary_Report.txt")
+    st.download_button("📄 Download TXT", final_summary, file_name="Final_Summary_Report.txt")
     with open("Final_Summary_Report.pdf", "rb") as f:
-        st.download_button("Download PDF", f, file_name="Final_Summary_Report.pdf")
+        st.download_button("📘 Download PDF", f, file_name="Final_Summary_Report.pdf")
     with open("Final_Summary_Report.docx", "rb") as f:
-        st.download_button("Download DOCX", f, file_name="Final_Summary_Report.docx")
+        st.download_button("📝 Download DOCX", f, file_name="Final_Summary_Report.docx")
