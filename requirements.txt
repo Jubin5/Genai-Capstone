@@ -1,0 +1,8 @@
+oe
+re
+fitz
+docx
+pathlib
+streamlit
+generativeai
+reportlab
