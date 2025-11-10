@@ -1,9 +1,9 @@
 PyMuPDF
 oe
 fitz
-docx
+python-docx
 pathlib
 streamlit
 generativeai
 reportlab
-exceptions 
+
