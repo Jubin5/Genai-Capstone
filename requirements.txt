@@ -4,6 +4,6 @@ fitz
 python-docx
 pathlib
 streamlit
-generativeai
+google-generativeai
 reportlab
 
