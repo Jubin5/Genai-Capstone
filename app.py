@@ -1,7 +1,7 @@
 # app.py
 """
 AI-Powered Contract & Policy Simplifier
-Using Ollama Phi model (local LLM)
+Using Google Gemini API instead of Ollama
 """
 
 import os
@@ -10,10 +10,16 @@ import fitz  # PyMuPDF
 from docx import Document
 from pathlib import Path
 import streamlit as st
-import requests
+import google.generativeai as genai
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+
+
+# --------- CONFIGURE GEMINI ---------
+# Make sure you set the API key in Streamlit Secrets or Environment
+# Example: os.environ["GOOGLE_API_KEY"] = "your-api-key-here"
+genai.configure(api_key=os.getenv("AIzaSyChl4DyxU3-jj_Iz2Cc_VEZJrTTdrXCAD8", st.secrets.get("AIzaSyChl4DyxU3-jj_Iz2Cc_VEZJrTTdrXCAD8", "")))
 
 
 # --------- PDF Extraction ---------
@@ -51,29 +57,20 @@ def split_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list:
     return chunks
 
 
-# --------- Simplification with Ollama Phi ---------
-def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
+# --------- Simplification with Gemini ---------
+def process_chunk_with_gemini(chunk: str, model_name: str = "gemini-1.5-flash") -> str:
     prompt = f"""
     You are a legal document simplifier. Read the following text and:
     1. Summarize it in plain, simple English.
-    2. List obligations, rights, risks, penalties, and important dates clearly.
-    
+    2. List obligations, rights, risks, penalties, and critical dates clearly.
+
     Text:
     {chunk}
     """
 
-    # Call Ollama API (works locally at http://localhost:11434)
-    response = requests.post(
-        "http://localhost:8080/api/generate",
-        json={"model": model_name, "prompt": prompt},
-        stream=False,
-    )
-
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("response", "").strip()
-    else:
-        return f"[Error] Ollama request failed: {response.status_code}"
+    model = genai.GenerativeModel(model_name)
+    response = model.generate_content(prompt)
+    return response.text.strip()
 
 
 # --------- Export Functions ---------
@@ -102,9 +99,9 @@ def export_to_docx(input_text: str, output_path: str):
 
 
 # --------- Streamlit App ---------
-st.set_page_config(page_title="AI Contract & Policy Simplifier", layout="wide", page_icon="⚖️")
-st.title("⚖️ AI-Powered Contract & Policy Simplifier (Ollama Phi Edition)")
-st.markdown("Upload a legal document (.pdf or .docx) to generate an easy-to-read summary. *(Runs locally using Ollama)*")
+st.set_page_config(page_title="AI Contract & Policy Simplifier", layout="wide")
+st.title("📜 AI-Powered Contract & Policy Simplifier (Gemini Edition)")
+st.markdown("Upload a legal document (.pdf or .docx) to generate an easy-to-read summary. *(Not legal advice)*")
 
 uploaded_file = st.file_uploader("📂 Upload PDF or DOCX", type=["pdf", "docx"])
 
@@ -123,12 +120,12 @@ if uploaded_file:
 
     st.success(f"✅ Extracted {len(chunks)} chunks from {input_path.name}")
 
-    # Process with Ollama Phi
-    st.subheader("🧠 Processing with Ollama Phi...")
+    # Process with Gemini
+    st.subheader("Processing with Gemini Model...")
     summaries = []
     progress = st.progress(0)
     for i, chunk in enumerate(chunks, start=1):
-        summary = process_chunk_with_ollama(chunk)
+        summary = process_chunk_with_gemini(chunk)
         summaries.append(f"### Summary of Chunk {i}\n{summary}\n")
         progress.progress(i / len(chunks))
 
@@ -156,9 +153,8 @@ if uploaded_file:
     export_to_docx(final_summary, "Final_Summary_Report.docx")
 
     st.subheader("⬇️ Export Options")
-    st.download_button("📜 Download TXT", final_summary, file_name="Final_Summary_Report.txt")
+    st.download_button("Download TXT", final_summary, file_name="Final_Summary_Report.txt")
     with open("Final_Summary_Report.pdf", "rb") as f:
-        st.download_button("📘 Download PDF", f, file_name="Final_Summary_Report.pdf")
+        st.download_button("Download PDF", f, file_name="Final_Summary_Report.pdf")
     with open("Final_Summary_Report.docx", "rb") as f:
-        st.download_button("📗 Download DOCX", f, file_name="Final_Summary_Report.docx")
-
+        st.download_button("Download DOCX", f, file_name="Final_Summary_Report.docx")                    "Change thid code for ollama phi model" 
