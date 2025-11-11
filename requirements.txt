@@ -1,4 +1,4 @@
-ollama
+openai>=1.50.0
 PyMuPDF
 oe
 fitz
