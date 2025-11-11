@@ -62,7 +62,7 @@ def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
     """
     try:
         # use the generate() API
-        response = ollama.generate(model=model_name, prompt=prompt)
+        response = ollama.GenerateResponse(model=model_name, prompt=prompt)
         return response["response"].strip()
     except Exception as e:
         return f"⚠️ Error processing chunk: {e}"
