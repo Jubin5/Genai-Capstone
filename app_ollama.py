@@ -61,11 +61,11 @@ def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
     {chunk}
     """
     try:
-        # use the generate() API
-        response = ollama.GenerateResponse(model=model_name, prompt=prompt)
-        return response["response"].strip()
+        response = ollama.chat(model=model_name, messages=[{"role": "user", "content": prompt}])
+        return response["message"]["content"].strip()
     except Exception as e:
         return f"⚠️ Error processing chunk: {e}"
+
 
 
 
