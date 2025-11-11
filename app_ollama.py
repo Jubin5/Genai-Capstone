@@ -10,7 +10,7 @@ import fitz  # PyMuPDF
 from docx import Document
 from pathlib import Path
 import streamlit as st
-import ollama  # <-- NEW: Ollama client
+import ollama  
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
