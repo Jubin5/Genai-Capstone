@@ -18,7 +18,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 # --------- CONFIGURE GROQ ---------
 # Make sure your API key is in Streamlit Secrets or Environment
-GROQ_API_KEY = os.getenv("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", st.secrets.get("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", ""))
 client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=GROQ_API_KEY)
 
 
