@@ -51,7 +51,6 @@ def split_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list:
     return chunks
 
 
-# --------- Simplification with Ollama Phi ---------
 def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
     prompt = f"""
     You are a legal document simplifier. Read the following text and:
@@ -61,12 +60,13 @@ def process_chunk_with_ollama(chunk: str, model_name: str = "phi") -> str:
     Text:
     {chunk}
     """
-
     try:
-        response = ollama.chat(model=model_name, messages=[{"role": "user", "content": prompt}])
-        return response["message"]["content"].strip()
+        # use the generate() API
+        response = ollama.generate(model=model_name, prompt=prompt)
+        return response["response"].strip()
     except Exception as e:
         return f"⚠️ Error processing chunk: {e}"
+
 
 
 # --------- Export Functions ---------
