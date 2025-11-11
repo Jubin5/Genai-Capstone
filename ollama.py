@@ -99,7 +99,11 @@ st.set_page_config(page_title="AI Contract & Policy Simplifier (Ollama Phi)", la
 st.title("📜 AI-Powered Contract & Policy Simplifier (Ollama Phi Edition)")
 st.markdown("Upload a legal document (.pdf or .docx) to generate an easy-to-read summary. *(Not legal advice)*")
 
-uploaded_file = st.file_uploader("📂 Upload PDF or DOCX", type=["pdf", "docx"])
+uploaded_file = st.file_uploader(
+    "📂 Upload PDF or DOCX",
+    type=["pdf", "docx"],
+    key="upload_contract"
+)
 
 if uploaded_file:
     input_path = Path(uploaded_file.name)
